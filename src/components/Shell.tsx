@@ -6,6 +6,8 @@ import ConnectButton from "@/components/ConnectButton";
 
 const LINKS = [
   { href: "/fund", label: "Fund" },
+  { href: "/submit", label: "Propose" },
+  { href: "/profile", label: "Account" },
   { href: "/tip", label: "Tip" },
   { href: "/creator", label: "Creator book" },
   { href: "/pool", label: "Pool bench" },
@@ -37,6 +39,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <div className="footer-col">
             <b>APP</b>
             <Link href="/fund">Back a campaign</Link>
+            <Link href="/submit">Propose a campaign</Link>
+            <Link href="/profile">Your account</Link>
             <Link href="/tip">Send a silent gift</Link>
             <Link href="/creator">Creator book</Link>
             <Link href="/pool">Pool bench</Link>
