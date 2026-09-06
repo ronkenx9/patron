@@ -58,6 +58,10 @@ input:focus { border-color: var(--ink); }
 .metric { background: var(--cream); padding: 28px; }
 .metric-label { color: var(--muted); font: .7rem var(--mono); text-transform: uppercase; }
 .metric-value { margin-top: 10px; font: 500 3.5rem var(--display); letter-spacing: -.06em; }
+.metric-sub { margin-top: 8px; color: var(--muted); font: .68rem var(--mono); letter-spacing: .04em; }
+.fee-chip { margin: 0; padding: 12px 14px; border: 1px dashed var(--line); font: .74rem var(--mono); }
+.balance-chip { font: .8rem var(--mono); line-height: 1.5; }
+.balance-chip em { color: var(--muted); font-style: normal; font-size: .68rem; }
 .overlay { position: fixed; inset: 0; z-index: 5; display: grid; place-items: center; padding: 20px; background: rgba(23,32,25,.46); }
 .modal { width: min(440px, 100%); padding: 28px; background: var(--cream); box-shadow: 0 24px 80px rgba(0,0,0,.2); }
 .wallet-row { width: 100%; display: flex; justify-content: space-between; border: 1px solid var(--line); background: var(--paper); padding: 14px; margin-top: 8px; text-align: left; }

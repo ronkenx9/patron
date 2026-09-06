@@ -8,6 +8,6 @@ Fan A tips a creator. Fan B tips the same creator. The creator sees two supporte
 
 ## Honest boundary
 
-PATRON does not yet index live pool events. The creator book on `/creator` is a clearly labelled demo snapshot. The `/tip` and `/pool` flows call the Wallet API against Starknet mainnet when a user connects a compatible wallet and has already shielded funds.
+PATRON does not index pool events — private transfers are invisible to any indexer by design. The creator book on `/creator` shows a self-reported supporter count plus, once the creator connects a wallet, a wallet-mediated read of their own shielded balance through the Wallet API (the app never sees a viewing key, and the read fires only on an explicit click). The `/tip` and `/pool` flows call the Wallet API against Starknet mainnet when a user connects a compatible wallet and has already shielded funds.
 
-Shielding is public. A shield immediately followed by a tip can be correlated, so the app tells users to use an already-mature shielded balance. PATRON never handles viewing keys or private keys.
+The pool charges a flat fee per private operation; PATRON reads it live from the pool and blocks or warns on tips small enough to be mostly fee. Shielding is public. A shield immediately followed by a tip can be correlated, so the app tells users to use an already-mature shielded balance and names the wallet's two deposit prompts (approve, then deposit) up front. PATRON never handles viewing keys or private keys.
