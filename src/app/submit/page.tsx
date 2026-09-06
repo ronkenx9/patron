@@ -24,6 +24,9 @@ export default function SubmitPage() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [head, setHead] = useState<number | null>(null);
   const [copied, setCopied] = useState(false);
+  const [queued, setQueued] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submitNote, setSubmitNote] = useState("");
 
   useEffect(() => {
     const draft = loadDraft<FormState>();
@@ -56,6 +59,38 @@ export default function SubmitPage() {
   async function copy() {
     if (!snippet) return;
     try { await navigator.clipboard.writeText(snippet); setCopied(true); setTimeout(() => setCopied(false), 1500); } catch { /* clipboard unavailable */ }
+  }
+
+  async function submitForReview() {
+    if (!proposal) return;
+    setSubmitting(true); setSubmitNote("");
+    try {
+      const response = await fetch("/api/proposals", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: proposal.title,
+          blurb: proposal.blurb,
+          story: proposal.story.join("\n"),
+          goal: String(Number(form.goal)),
+          deadline: proposal.deadline,
+          beneficiary: proposal.beneficiary,
+          fromBlock: proposal.fromBlock,
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (response.status === 201) {
+        setQueued(true);
+      } else if (response.status === 503) {
+        setSubmitNote("The review queue is offline on this deployment — use copy/download and open the PR directly.");
+      } else {
+        setSubmitNote(data.error ?? "Submission failed — use copy/download instead.");
+      }
+    } catch {
+      setSubmitNote("Network error — use copy/download instead.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   function download() {
@@ -116,7 +151,14 @@ export default function SubmitPage() {
                 <p className="fineprint">Connect to prefill your treasury — your wallet is the account here.</p>
               </div>
             ) : null}
-            {!result.ok ? <p className="error">{result.reason}</p> : <p className="warning">Ready. The config on the right is paste-ready for <code>src/lib/campaigns.ts</code>.</p>}
+            {!result.ok ? <p className="error">{result.reason}</p> : (
+              <div className="quickrow">
+                <button className="btn btn-solid" disabled={submitting || queued} onClick={submitForReview}>{queued ? "Queued ✓" : submitting ? "Submitting…" : "Submit for review"}</button>
+                <button className="btn" onClick={download} disabled={!proposal}>Download config</button>
+              </div>
+            )}
+            {queued ? <p className="receipt"><b>In the review queue.</b><br />The owner reads the queue at the next review pass. Your draft also stays in this browser; the config below is always yours to keep.</p> : null}
+            {submitNote ? <p className="error">{submitNote}</p> : null}
           </div>
         </section>
 
