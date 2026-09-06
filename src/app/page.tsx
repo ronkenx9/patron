@@ -38,7 +38,7 @@ export default function HomePage() {
       <section className="hero">
         <div>
           <p className="eyebrow">Private crowdfunding / STRK20 · SN_MAIN</p>
-          <h1>Back ideas, not <span className="mark">identities.</span></h1>
+          <h1>Back ideas, <span className="dim">not identities.</span></h1>
           <p className="lead">
             Crowdfunds for creators, open-source teams, and communities on Starknet.
             Every STRK in the bar is verifiable on-chain. Every backer stays invisible.
@@ -53,9 +53,12 @@ export default function HomePage() {
         <div className="poster" aria-hidden>
           <p className="poster-note">PATRON / C-01<br />A public pot. A private crowd.</p>
           <span className="poster-chip">backers: hidden</span>
-          <div className="poster-fund">
+          <div className="poster-mock">
+            <h5>SEASON 02 — open-source tooling</h5>
             <div className="poster-bar"><span style={{ width: "62%" }} /></div>
-            <div className="poster-fund-meta"><span>310 / 500 STRK</span><span>62%</span></div>
+            <div className="row"><span>Raised</span><b>310 / 500 STRK</b></div>
+            <div className="row"><span>Backers</span><b>nobody knows</b></div>
+            <div className="row"><span>Deadline</span><b>31 Oct</b></div>
           </div>
           <div className="poster-foot"><span>BAR: VERIFIABLE</span><span>CROWD: INVISIBLE</span></div>
         </div>
@@ -75,7 +78,7 @@ export default function HomePage() {
         <div className="section-head">
           <div>
             <p className="eyebrow">01 / CAMPAIGNS</p>
-            <h2>A bar anyone can verify.<br />A crowd no one can name.</h2>
+            <h2>A bar anyone can verify. <span className="dim">A crowd no one can name.</span></h2>
           </div>
           <span className="section-num">01</span>
         </div>
@@ -131,7 +134,7 @@ export default function HomePage() {
         <div className="section-head">
           <div>
             <p className="eyebrow">03 / PRIVACY MODEL</p>
-            <h2>What the pool hides.<br />What the edge shows.</h2>
+            <h2>What the pool hides. <span className="dim">What the edge shows.</span></h2>
           </div>
           <span className="section-num">03</span>
         </div>
