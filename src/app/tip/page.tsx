@@ -56,11 +56,11 @@ export default function TipPage() {
     <Shell>
       <div className="appgrid">
         <section className="panel">
-          <p className="eyebrow">FAN / PRIVATE TRANSFER</p>
-          <h2 style={{ marginTop: 14 }}>Put support in the pool.</h2>
+          <p className="eyebrow">SILENT GIFT / PRIVATE TRANSFER</p>
+          <h2 style={{ marginTop: 14 }}>Support nobody can see.</h2>
           <p className="section-copy">
-            This action spends an existing shielded balance. Keep the tip well above the pool fee, and let notes
-            mature ~10 blocks before spending them.
+            The quiet rail: a plain private transfer to a creator — never counted on any campaign bar. Spends an
+            existing shielded balance; keep it well above the pool fee and let notes mature ~10 blocks first.
           </p>
           <div className="stack" style={{ marginTop: 24 }}>
             <FeeChip />

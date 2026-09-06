@@ -103,6 +103,10 @@ h3 { font: 1.32rem var(--display); margin: 0 0 10px; }
 .poster-foot { position: relative; z-index: 1; display: flex; justify-content: space-between; color: #b9c2b5; font: .66rem var(--mono); letter-spacing: .1em; }
 .poster-chip { position: relative; z-index: 1; align-self: flex-end; background: var(--acid); color: var(--ink); padding: 7px 11px; font: .64rem var(--mono); letter-spacing: .06em; animation: drift 6s ease-in-out infinite; }
 @keyframes drift { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+.poster-fund { position: relative; z-index: 1; display: grid; gap: 8px; margin: 20px 0; }
+.poster-bar { height: 14px; border: 1px solid var(--acid); background: rgba(216, 255, 62, .06); overflow: hidden; }
+.poster-bar span { display: block; height: 100%; background: repeating-linear-gradient(-45deg, var(--acid) 0 8px, #b8dd2c 8px 16px); }
+.poster-fund-meta { display: flex; justify-content: space-between; color: var(--acid); font: .66rem var(--mono); letter-spacing: .1em; }
 
 /* ---------- live strip + marquee ---------- */
 .strip { border: 1px solid var(--line-strong); display: grid; grid-template-columns: repeat(4, auto); justify-content: space-between; gap: 26px; padding: 14px 22px; background: var(--cream); font: .7rem var(--mono); letter-spacing: .08em; text-transform: uppercase; }

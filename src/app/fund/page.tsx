@@ -21,26 +21,18 @@ const RAILS = [
 export default function FundPage() {
   return (
     <Shell>
-      <section className="panel" style={{ maxWidth: 860 }}>
-        <p className="eyebrow">CROWDFUND / AGGREGATE-BY-PROOF</p>
-        <h2 style={{ marginTop: 14 }}>Back ideas, not identities.</h2>
-        <p className="section-copy">
-          A crowdfund on PATRON is a goal and a treasury. Pledges come out of shielded balances, so the chain can
-          verify every STRK that lands — and can never say who pledged. The progress bar is derived from STRK
-          transfer events on Starknet mainnet, not from anyone's word.
+      <section className="panel" style={{ maxWidth: 900 }}>
+        <p className="eyebrow">PATRON CAMPAIGNS / AGGREGATE-BY-PROOF</p>
+        <h2 style={{ marginTop: 14 }}>Fund what you love.<br />Stay off the list.</h2>
+        <p className="section-copy" style={{ marginTop: 12 }}>
+          A campaign is a goal and a treasury. Pledges come out of shielded balances, so the chain can verify every
+          STRK that lands — and can never say who pledged. The progress bar is derived from STRK transfer events on
+          Starknet mainnet, not from anyone's word. Built for creators, open-source teams, and ecosystems whose
+          communities run on small public acts of support.
         </p>
       </section>
 
-      <div className="grid grid-2" style={{ marginBottom: 60 }}>
-        {RAILS.map((rail) => (
-          <article className="card" key={rail.name}>
-            <p className="step-tag">{rail.name} · {rail.tag}</p>
-            <p style={{ marginTop: 12 }}>{rail.copy}</p>
-          </article>
-        ))}
-      </div>
-
-      <div className="section-head" style={{ marginBottom: 20 }}>
+      <div className="section-head" style={{ marginBottom: 20, marginTop: 40 }}>
         <p className="eyebrow">OPEN CAMPAIGNS</p>
       </div>
       <div className="stack" style={{ gap: 20 }}>
@@ -60,6 +52,15 @@ export default function FundPage() {
             )}
             <p className="fineprint" style={{ marginTop: 10 }}>OPEN CAMPAIGN PAGE →</p>
           </Link>
+        ))}
+      </div>
+
+      <div className="grid grid-2" style={{ marginBottom: 60, marginTop: 40 }}>
+        {RAILS.map((rail) => (
+          <article className="card" key={rail.name}>
+            <p className="step-tag">{rail.name} · {rail.tag}</p>
+            <p style={{ marginTop: 12 }}>{rail.copy}</p>
+          </article>
         ))}
       </div>
 

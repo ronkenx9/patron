@@ -5,8 +5,8 @@ import { usePathname } from "next/navigation";
 import ConnectButton from "@/components/ConnectButton";
 
 const LINKS = [
-  { href: "/tip", label: "Tip" },
   { href: "/fund", label: "Fund" },
+  { href: "/tip", label: "Tip" },
   { href: "/creator", label: "Creator book" },
   { href: "/pool", label: "Pool bench" },
 ];
@@ -31,13 +31,13 @@ export default function Shell({ children }: { children: React.ReactNode }) {
           <div>
             <div className="footer-word">PATRON<span>///</span></div>
             <p className="fineprint" style={{ maxWidth: 300, marginTop: 14 }}>
-              Private tips without a public client list. Built on the live STRK20 pool, Starknet mainnet.
+              Private crowdfunding and tipping without a supporter list. Built on the live STRK20 pool, Starknet mainnet.
             </p>
           </div>
           <div className="footer-col">
             <b>APP</b>
-            <Link href="/tip">Send a private tip</Link>
             <Link href="/fund">Back a campaign</Link>
+            <Link href="/tip">Send a silent gift</Link>
             <Link href="/creator">Creator book</Link>
             <Link href="/pool">Pool bench</Link>
           </div>

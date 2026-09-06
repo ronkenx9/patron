@@ -2,8 +2,8 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "PATRON — private tips without a public client list",
-  description: "A creator tip jar on the live STRK20 pool. Fans tip privately; the public book shows only a count and an aggregate.",
+  title: "PATRON — private crowdfunding on STRK20",
+  description: "Back creators, open source, and communities on Starknet. Every STRK in the bar is verifiable; every backer stays invisible.",
 };
 
 export const viewport: Viewport = {

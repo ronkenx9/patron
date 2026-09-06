@@ -92,7 +92,7 @@ export default function CampaignPage() {
     <Shell>
       <div className="appgrid">
         <section className="panel">
-          <p className="eyebrow">CROWDFUND / {live ? "LIVE" : "PREVIEW"}</p>
+          <p className="eyebrow">PATRON CAMPAIGN / {live ? "LIVE" : "PREVIEW"}</p>
           <h2 style={{ marginTop: 14 }}>{campaign.title}</h2>
           {campaign.story.map((paragraph) => (
             <p className="section-copy" style={{ marginTop: 14 }} key={paragraph.slice(0, 24)}>{paragraph}</p>

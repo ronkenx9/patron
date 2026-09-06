@@ -1,8 +1,8 @@
-# PATRON — private tips without a public client list
+# PATRON — private crowdfunding without a supporter list
 
-PATRON is a creator tip jar built on the live [STRK20](https://strk20.starknet.io/) pool on Starknet mainnet. Two fans can privately tip one creator while the public creator book shows only the number of supporters and the aggregate received.
+PATRON is a crowdfunding platform for creators, open-source teams, and communities, built on the live [STRK20](https://strk20.starknet.io/) pool on Starknet mainnet. Campaign progress is verifiable on-chain — a public bar derived from STRK transfer events — while backers stay invisible, because pledges are withdrawals from shielded balances submitted by a relayer. Private tipping rides the same rails as the "silent gift": a private transfer no bar ever counts.
 
-This is a new project for the STRK20 Private Sprint, inspired by RFP-12 (private patronage / creator inbound). It is not private payroll and it does not custody funds or wallet viewing keys.
+This is a project for the STRK20 Private Sprint, inspired by RFP-12 (private patronage / creator inbound). It is not private payroll and it does not custody funds or wallet viewing keys.
 
 ## Quickstart
 
@@ -20,8 +20,8 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-1. `/tip` — connect a wallet, enter a creator address and a tip amount, then submit a private transfer from an already shielded balance. The page reads the pool's live fee and blocks tips that would be consumed by it.
-2. `/fund` — anonymous crowdfunding. A public pledge withdraws a slice of shielded balance straight to the campaign treasury: the amount is public (the progress bar is derived from STRK transfer events, pool → treasury), the backer is not on the chain at all. A silent gift is a plain private tip the bar never sees.
+1. `/fund` — the main event: anonymous crowdfunding. A public pledge withdraws a slice of shielded balance straight to the campaign treasury: the amount is public (the progress bar is derived from STRK transfer events, pool → treasury), the backer is not on the chain at all. A silent gift is a plain private tip the bar never sees.
+2. `/tip` — the silent-gift rail on its own: connect a wallet, enter a creator address and an amount, and submit a private transfer from an already shielded balance. The page reads the pool's live fee and blocks tips that would be consumed by it.
 3. `/creator` — the aggregate-only book: a self-reported supporter count, plus a wallet-mediated read of the creator's own shielded balance once they connect (the read fires only on an explicit click).
 4. `/pool` — the shield / private transfer / unshield proof bench. The sprint's three mainnet transaction hashes will be recorded in `strk20.json` only after they exist and succeed.
 
