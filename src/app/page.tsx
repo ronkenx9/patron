@@ -149,6 +149,41 @@ export default function HomePage() {
         <Link className="btn" href="/creator">Open the creator book</Link>
       </section>
 
+      <section className="section">
+        <div className="section-head">
+          <div>
+            <p className="eyebrow">04 / CAMPAIGNS</p>
+            <h2>Crowdfunds where the bar is proof.</h2>
+          </div>
+          <span className="section-num">04</span>
+        </div>
+        <div className="split">
+          <div className="vault">
+            <p className="eyebrow">WHAT THE CHAIN PROVES</p>
+            <ul className="vault-list">
+              <li>Every STRK that reached the treasury</li>
+              <li>How many pledges built the bar</li>
+              <li>Nothing about who pledged — ever</li>
+            </ul>
+            <p className="vault-foot">
+              Pledges are withdrawals from shielded balances, submitted by a relayer. The amount is public because a
+              verifiable bar is worth it; the backer list simply does not exist.
+            </p>
+          </div>
+          <div className="edge">
+            <p className="eyebrow" style={{ color: "var(--muted)" }}>TWO WAYS TO BACK</p>
+            <ul className="edge-list">
+              <li>Public pledge — counted on the bar, backer invisible</li>
+              <li>Silent gift — a private tip the bar never sees</li>
+              <li>Keep-what-you-raise — no escrow, no refunds in v1</li>
+            </ul>
+            <div className="band-actions" style={{ marginTop: 26 }}>
+              <Link className="btn btn-acid" href="/fund">Open the campaigns</Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section className="band">
         <p className="eyebrow">READY WHEN YOU ARE</p>
         <h2>Put support in the pool.</h2>

@@ -21,8 +21,9 @@ npm run dev
 Open `http://localhost:3000`.
 
 1. `/tip` — connect a wallet, enter a creator address and a tip amount, then submit a private transfer from an already shielded balance. The page reads the pool's live fee and blocks tips that would be consumed by it.
-2. `/creator` — the aggregate-only book: a self-reported supporter count, plus a wallet-mediated read of the creator's own shielded balance once they connect (the read fires only on an explicit click).
-3. `/pool` — the shield / private transfer / unshield proof bench. The sprint's three mainnet transaction hashes will be recorded in `strk20.json` only after they exist and succeed.
+2. `/fund` — anonymous crowdfunding. A public pledge withdraws a slice of shielded balance straight to the campaign treasury: the amount is public (the progress bar is derived from STRK transfer events, pool → treasury), the backer is not on the chain at all. A silent gift is a plain private tip the bar never sees.
+3. `/creator` — the aggregate-only book: a self-reported supporter count, plus a wallet-mediated read of the creator's own shielded balance once they connect (the read fires only on an explicit click).
+4. `/pool` — the shield / private transfer / unshield proof bench. The sprint's three mainnet transaction hashes will be recorded in `strk20.json` only after they exist and succeed.
 
 ## Privacy model
 
@@ -36,13 +37,18 @@ The creator book is not an indexer. Private transfers are invisible to any index
 
 The pool's flat fee per private operation is public state, read live from the pool (`get_fee_amount`). Tips at or below the fee are blocked and tips under twice the fee are warned about, because most of that value would go to the pool rather than the creator.
 
+Crowdfunding leans the other way on purpose: a pledge is a withdrawal to the treasury, so the amount is public — that is what makes the progress bar verifiable by anyone. The backer stays private because the transaction is relayed and their public wallet never appears. Pledge counts count transactions, not people. Campaigns are keep-what-you-raise; all-or-nothing refunds would need an escrow contract and are deliberately not in this version.
+
 ## Architecture
 
 `/tip` → Wallet API `transfer` action → STRK20 pool, with a live pool-fee read and a tip-size guard  
+`/fund` → pledges via Wallet API `withdraw` action to the treasury; bar derived from `starknet_getEvents` (STRK `Transfer`, pool → treasury)  
 `/creator` → self-reported aggregate book + wallet-mediated shielded-balance read (`strk20Balances`)  
 `/pool` → Wallet API `deposit`, `transfer`, `withdraw` actions  
 `src/lib/strk20.ts` → pure action builders and Wallet API invocation  
-`src/lib/pool.ts` → pool-fee read (`get_fee_amount`) and tip guard
+`src/lib/pool.ts` → pool-fee read (`get_fee_amount`) and size guards  
+`src/lib/campaigns.ts` → campaign config (a campaign goes live only when the owner names a treasury and a start block)  
+`src/lib/fundIndexer.ts` → pledge indexer: u256 decode, pagination, totals
 
 ## Sprint status
 
