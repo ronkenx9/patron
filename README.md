@@ -82,7 +82,7 @@ Public repo, MIT license, live demo, three mainnet pool transactions. The hub re
 | Field | Value |
 | --- | --- |
 | Demo | https://patron-topaz.vercel.app |
-| Video | https://patron-topaz.vercel.app/demo.mp4 — pitch Night School, then the live 8/80 bar and the verified receipt |
+| Video | https://patron-topaz.vercel.app/demo.mp4 — live 8/80 bar, verified receipt, then what stays public |
 | Registry | https://github.com/ronkenx9/patron · Telegram `Kenshixronin` |
 | Inspired by | RFP-12 |
 
@@ -108,9 +108,9 @@ The bar reads that as 8 / 80 STRK in qualifying pool receipts. Season 02 is **cl
 
 The recorded video is a **browser walkthrough of the live site** plus an on-chain receipt:
 
-1. Pitch Night School on `/submit` (unauthenticated review queue).
-2. Open the live campaign and wait for the 8 STRK bar.
-3. Paste the pledge hash and verify it as a qualifying pool receipt.
+1. Open `/fund` — one live campaign, Night School, 8 / 80 STRK in qualifying pool receipts.
+2. Open the campaign and wait for the bar.
+3. Paste the pledge hash and verify it as a qualifying pool receipt, then the public-edge copy (amount, timing, deposits, no untraceability claim).
 
 The 8 STRK (and the three `strk20.json` hashes) were produced with the **Privacy SDK CLI** against the hosted prover, using a team-owned OpenZeppelin account. That is not the same as a new user's Ready-wallet Wallet API flow completing in the browser. The public app still exposes that Wallet API path (`deposit` / `transfer` / `withdraw` via `WalletAccountV6` on `/pool`, `/fund`, `/tip`); the sprint video does not record a connected-wallet confirmation.
 
