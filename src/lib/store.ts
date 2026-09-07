@@ -2,8 +2,8 @@ import { sql } from "@vercel/postgres";
 
 // The backend stores two things, and only two things: campaign proposals
 // awaiting the owner's review, and signature-verified campaign updates.
-// It never holds keys, never moves funds, and never learns a backer's
-// identity — pledges live on-chain, not here.
+// It never holds keys and never moves funds. Pledges live on-chain as
+// public pool-to-treasury transfers; this store is not a supporter list.
 export function hasDatabase(): boolean {
   return Boolean(process.env.POSTGRES_URL || process.env.DATABASE_URL);
 }

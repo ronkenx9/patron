@@ -4,34 +4,35 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Shell from "@/components/Shell";
 import Progress from "@/components/Progress";
-import { CAMPAIGNS, formatDeadline, isLive, pledgedFraction, type Campaign } from "@/lib/campaigns";
+import { formatDeadline, isLive, liveCampaigns, pledgedFraction, type Campaign } from "@/lib/campaigns";
 import { makeProvider } from "@/lib/constants";
-import { fetchPledges, sumPledges } from "@/lib/fundIndexer";
+import { fetchPledges, sumPledges, type PledgeScan } from "@/lib/fundIndexer";
 
 const RAILS = [
   {
     name: "PUBLIC PLEDGE",
-    copy: "Withdraw a slice of your shielded balance straight to the campaign treasury. The amount lands on-chain, so anyone can verify the bar — the chain never learns who you are, because a relayer submits the transaction.",
-    tag: "COUNTED",
+    copy: "Withdraw from a shielded balance to the campaign treasury. The amount lands as a pool-to-treasury STRK transfer, so anyone can verify the bar. PATRON does not publish a supporter list. Amount, timing, and the deposit that funded the note stay public — a relayer on tx.from is not proof of untraceability.",
+    tag: "COUNTED RECEIPT",
   },
   {
     name: "SILENT GIFT",
-    copy: "A plain private transfer to the creator, exactly like a tip. Nobody sees it — not the progress bar, not the chain, only the creator's own wallet. Same mechanics as the tip jar.",
+    copy: "A plain private transfer to the creator. It is not a qualifying pool receipt, so it never moves the bar. The creator's wallet can see it; PATRON's indexer cannot.",
     tag: "UNCOUNTED",
   },
 ];
 
 export default function FundPage() {
+  const open = liveCampaigns();
   return (
     <Shell>
       <section className="panel" style={{ maxWidth: 900 }}>
-        <p className="eyebrow">PATRON CAMPAIGNS / AGGREGATE-BY-PROOF</p>
-        <h2 style={{ marginTop: 14 }}>Fund what you love.<br />Stay off the list.</h2>
+        <p className="eyebrow">PATRON CAMPAIGNS / QUALIFYING POOL RECEIPTS</p>
+        <h2 style={{ marginTop: 14 }}>Fund what you love.<br />No supporter list.</h2>
         <p className="section-copy" style={{ marginTop: 12 }}>
-          A campaign is a goal and a treasury. Pledges come out of shielded balances, so the chain can verify every
-          STRK that lands — and can never say who pledged. The progress bar is derived from STRK transfer events on
-          Starknet mainnet, not from anyone's word. Built for creators, open-source teams, and ecosystems whose
-          communities run on small public acts of support.
+          A campaign is a goal and a treasury. The progress bar is the sum of STRK transfers from the STRK20 pool to
+          that treasury in the campaign's block window — qualifying pool receipts, not unique donors, and not proof of
+          intent. PATRON does not publish a supporter list. One live campaign per treasury, so a later withdrawal cannot
+          land on two bars.
         </p>
       </section>
 
@@ -39,7 +40,7 @@ export default function FundPage() {
         <p className="eyebrow">OPEN CAMPAIGNS</p>
       </div>
       <div className="stack" style={{ gap: 20 }}>
-        {CAMPAIGNS.map((campaign) => (
+        {open.map((campaign) => (
           <CampaignCard campaign={campaign} key={campaign.id} />
         ))}
       </div>
@@ -64,24 +65,26 @@ export default function FundPage() {
 
 function CampaignCard({ campaign }: { campaign: Campaign }) {
   const live = isLive(campaign);
-  const [raised, setRaised] = useState<bigint | null>(null);
+  const [scan, setScan] = useState<PledgeScan | null>(null);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (!live || !campaign.beneficiary || campaign.fromBlock == null) return;
     let cancelled = false;
-    fetchPledges(makeProvider(), campaign.beneficiary, campaign.fromBlock)
-      .then((pledges) => {
-        if (!cancelled) setRaised(sumPledges(pledges).totalWei);
+    setFailed(false);
+    fetchPledges(makeProvider(), campaign.beneficiary, campaign.fromBlock, { toBlock: campaign.toBlock })
+      .then((next) => {
+        if (!cancelled) setScan(next);
       })
       .catch(() => {
-        if (!cancelled) setRaised(0n);
+        if (!cancelled) setFailed(true);
       });
     return () => {
       cancelled = true;
     };
-  }, [live, campaign.beneficiary, campaign.fromBlock]);
+  }, [live, campaign.beneficiary, campaign.fromBlock, campaign.toBlock]);
 
-  const raisedWei = raised ?? 0n;
+  const raisedWei = scan ? sumPledges(scan.pledges).totalWei : 0n;
   return (
     <Link className="campaign-card" href={`/fund/${campaign.id}`}>
       <div className="campaign-head">
@@ -90,7 +93,14 @@ function CampaignCard({ campaign }: { campaign: Campaign }) {
       </div>
       <p className="section-copy">{campaign.blurb}</p>
       {live ? (
-        <Progress raisedWei={raisedWei} goalWei={campaign.goalWei} fraction={pledgedFraction(raisedWei, campaign.goalWei)} />
+        <>
+          {failed ? (
+            <p className="warning">The chain read failed, so the bar shows nothing rather than a guess.</p>
+          ) : (
+            <Progress raisedWei={raisedWei} goalWei={campaign.goalWei} fraction={pledgedFraction(raisedWei, campaign.goalWei)} />
+          )}
+          {scan?.truncated ? <p className="warning" style={{ marginTop: 10 }}>Partial count — event page cap reached, so this total is incomplete.</p> : null}
+        </>
       ) : (
         <p className="fineprint">
           GOAL {campaign.goalWei / 10n ** 18n} STRK · BY {formatDeadline(campaign.deadline)} · TREASURY NOT CONFIGURED — THE OWNER SETS IT BEFORE ANY PLEDGE CAN LAND

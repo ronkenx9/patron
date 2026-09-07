@@ -1,8 +1,22 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { decodeU256, pledgeFromEvent, sumPledges } from "./fundIndexer";
-import { daysLeft, getCampaign, isLive, pledgedFraction, strk, CAMPAIGNS } from "./campaigns";
+import { coverageFromPages, decodeU256, pledgeFromEvent, pledgesInWindow, sumPledges } from "./fundIndexer";
+import {
+  CAMPAIGNS,
+  daysLeft,
+  getCampaign,
+  inCampaignWindow,
+  isClosed,
+  isLive,
+  liveCampaigns,
+  liveTreasuryConflicts,
+  overlappingAttributions,
+  pledgedFraction,
+  strk,
+  type Campaign,
+} from "./campaigns";
 import { pledgeCheck } from "./pool";
+import { resetRateLimit, takeToken } from "./ratelimit";
 
 const FEE = 6n * 10n ** 18n;
 
@@ -58,16 +72,68 @@ test("progress math caps at the goal", () => {
   assert.equal(pledgedFraction(strk(50), 0n), 0);
 });
 
-test("live campaigns have a treasury and a fromBlock", () => {
+test("only one live campaign, and it does not share an open treasury window", () => {
   assert.equal(CAMPAIGNS.length, 2);
-  const campaign = getCampaign("season-two");
-  assert.ok(campaign);
-  assert.equal(isLive(campaign), true);
+  const season = getCampaign("season-two");
   const night = getCampaign("night-school");
+  assert.ok(season);
   assert.ok(night);
+  assert.equal(isClosed(season), true);
+  assert.equal(isLive(season), false);
   assert.equal(isLive(night), true);
+  assert.equal(liveCampaigns().length, 1);
+  assert.equal(liveCampaigns()[0]?.id, "night-school");
+  assert.deepEqual(liveTreasuryConflicts(), []);
+  assert.deepEqual(overlappingAttributions(), []);
   assert.equal(getCampaign("nope"), undefined);
-  assert.ok(daysLeft(campaign.deadline) !== null);
+  assert.ok(daysLeft(night.deadline) !== null);
+});
+
+test("one withdrawal cannot increase two independent campaign totals", () => {
+  const treasury = "0x02da976cd4fc7689541d66612491ec49de859f97556c60933407bbd85be0c86f";
+  const overlapping: Campaign[] = [
+    { id: "a", title: "A", blurb: "long enough", story: ["s"], goalWei: strk(80), deadline: "2026-10-31T00:00:00Z", beneficiary: treasury, fromBlock: 100 },
+    { id: "b", title: "B", blurb: "long enough", story: ["s"], goalWei: strk(80), deadline: "2026-10-31T00:00:00Z", beneficiary: treasury, fromBlock: 150 },
+  ];
+  assert.equal(liveTreasuryConflicts(overlapping).length, 1);
+  assert.equal(overlappingAttributions(overlapping).length, 1);
+
+  const split: Campaign[] = [
+    { ...overlapping[0]!, toBlock: 150 },
+    overlapping[1]!,
+  ];
+  assert.equal(liveTreasuryConflicts(split).length, 0);
+  assert.equal(overlappingAttributions(split).length, 0);
+
+  const withdrawal = { amountWei: strk(8), block: 14519102, txHash: "0x4a45" };
+  const earlier = { amountWei: strk(8), block: 14517393, txHash: "0xbda1" };
+  const season = getCampaign("season-two")!;
+  const night = getCampaign("night-school")!;
+  assert.equal(inCampaignWindow(withdrawal.block, night), true);
+  assert.equal(inCampaignWindow(withdrawal.block, season), false);
+  assert.equal(inCampaignWindow(earlier.block, night), false);
+  assert.equal(inCampaignWindow(earlier.block, season), true);
+
+  const both = [earlier, withdrawal];
+  assert.equal(sumPledges(pledgesInWindow(both, night)).totalWei, strk(8));
+  assert.equal(sumPledges(pledgesInWindow(both, season)).totalWei, strk(8));
+  assert.equal(sumPledges(pledgesInWindow(both, night)).totalWei + sumPledges(pledgesInWindow(both, season)).totalWei, strk(16));
+});
+
+test("a page cap with a continuation token is a partial scan, not a complete total", () => {
+  assert.deepEqual(coverageFromPages(10, 10, "next"), { complete: false, truncated: true });
+  assert.deepEqual(coverageFromPages(3, 10, undefined), { complete: true, truncated: false });
+});
+
+test("ingress rate limit trips after the window max", () => {
+  resetRateLimit();
+  const opts = { windowMs: 60_000, max: 3, now: 1_000 };
+  assert.equal(takeToken("ip", opts), true);
+  assert.equal(takeToken("ip", { ...opts, now: 1_001 }), true);
+  assert.equal(takeToken("ip", { ...opts, now: 1_002 }), true);
+  assert.equal(takeToken("ip", { ...opts, now: 1_003 }), false);
+  assert.equal(takeToken("other", { ...opts, now: 1_003 }), true);
+  assert.equal(takeToken("ip", { ...opts, now: 61_003 }), true);
 });
 
 test("pledge check mirrors tip check wording for treasuries", () => {

@@ -37,8 +37,11 @@ export function checkProposal(input: {
   const blurb = input.blurb.trim();
   const story = input.story.split("\n").map((p) => p.trim()).filter(Boolean);
   if (title.length < 4) return { ok: false, reason: "Give the campaign a real title." };
+  if (title.length > 120) return { ok: false, reason: "Title is too long." };
   if (blurb.length < 10) return { ok: false, reason: "The one-liner is too short — say what the money is for." };
+  if (blurb.length > 280) return { ok: false, reason: "The one-liner is too long." };
   if (story.length < 1) return { ok: false, reason: "Add at least one story paragraph." };
+  if (input.story.length > 4000) return { ok: false, reason: "Story is too long." };
 
   const goal = Number(input.goal.trim());
   if (!Number.isFinite(goal) || goal < 10) return { ok: false, reason: "Goal must be at least 10 STRK." };

@@ -8,7 +8,7 @@ import ConnectButton from "@/components/ConnectButton";
 import FeeChip from "@/components/FeeChip";
 import Progress from "@/components/Progress";
 import ShieldedBalance from "@/components/ShieldedBalance";
-import { daysLeft, formatDeadline, getCampaign, isLive, pledgedFraction } from "@/lib/campaigns";
+import { daysLeft, formatDeadline, getCampaign, isClosed, isLive, pledgedFraction } from "@/lib/campaigns";
 import { explorerTx, makeProvider } from "@/lib/constants";
 import { sameAddress } from "@/lib/pool";
 import { shortHex, toWei } from "@/lib/format";
@@ -19,7 +19,7 @@ import { invokeActions, withdrawAction } from "@/lib/strk20";
 import { buildUpdateTypedData } from "@/lib/updates";
 import { useWallet } from "@/store/wallet";
 
-type Tally = { raisedWei: bigint; count: number } | null;
+type Tally = { raisedWei: bigint; count: number; truncated: boolean } | null;
 
 type UpdateRow = {
   seq: number;
@@ -70,28 +70,30 @@ export default function CampaignPage() {
   const [receipt, setReceipt] = useState<Pledge | null | "none">(null);
 
   const live = campaign ? isLive(campaign) : false;
-  const isOwner = Boolean(live && campaign?.beneficiary && address && sameAddress(address, campaign.beneficiary));
+  const closed = campaign ? isClosed(campaign) : false;
+  const countable = Boolean(campaign?.beneficiary && campaign.fromBlock != null);
+  const isOwner = Boolean(countable && campaign?.beneficiary && address && sameAddress(address, campaign.beneficiary));
 
   useEffect(() => {
-    let cancelled = true;
-    readPoolFeeWei(makeProvider()).then((fee) => { if (cancelled) setFeeWei(fee); }).catch(() => {});
-    return () => { cancelled = false; };
+    let cancelled = false;
+    readPoolFeeWei(makeProvider()).then((fee) => { if (!cancelled) setFeeWei(fee); }).catch(() => {});
+    return () => { cancelled = true; };
   }, []);
 
   useEffect(() => {
-    if (!campaign || !live || !campaign.beneficiary || !campaign.fromBlock) return;
-    let cancelled = true;
+    if (!campaign || !countable || !campaign.beneficiary || campaign.fromBlock == null) return;
+    let cancelled = false;
     setTallyDown(false);
-    fetchPledges(makeProvider(), campaign.beneficiary, campaign.fromBlock)
-      .then((rows) => {
-        if (!cancelled) return;
-        const { totalWei, count } = sumPledges(rows);
-        setPledges(rows);
-        setTally({ raisedWei: totalWei, count });
+    fetchPledges(makeProvider(), campaign.beneficiary, campaign.fromBlock, { toBlock: campaign.toBlock })
+      .then((scan) => {
+        if (cancelled) return;
+        const { totalWei, count } = sumPledges(scan.pledges);
+        setPledges(scan.pledges);
+        setTally({ raisedWei: totalWei, count, truncated: scan.truncated });
       })
       .catch(() => { if (!cancelled) setTallyDown(true); });
-    return () => { cancelled = false; };
-  }, [campaign, live]);
+    return () => { cancelled = true; };
+  }, [campaign, countable]);
 
   const loadUpdates = useCallback(async () => {
     if (!campaign) return;
@@ -181,35 +183,36 @@ export default function CampaignPage() {
     <Shell>
       <div className="appgrid">
         <section className="panel">
-          <p className="eyebrow">PATRON CAMPAIGN / {live ? "LIVE" : "PREVIEW"}</p>
+          <p className="eyebrow">PATRON CAMPAIGN / {live ? "LIVE" : closed ? "CLOSED" : "PREVIEW"}</p>
           <h2 style={{ marginTop: 14 }}>{campaign.title}</h2>
           {campaign.story.map((paragraph) => (
             <p className="section-copy" style={{ marginTop: 14 }} key={paragraph.slice(0, 24)}>{paragraph}</p>
           ))}
           <div className="progress-block" style={{ marginTop: 24 }}>
-            {live && tally ? (
+            {countable && tally ? (
               <Progress raisedWei={raised} goalWei={campaign.goalWei} fraction={pledgedFraction(raised, campaign.goalWei)} />
-            ) : live && tallyDown ? (
+            ) : countable && tallyDown ? (
               <p className="warning">The chain read failed, so the bar shows nothing rather than a guess. Reload to retry.</p>
-            ) : live ? (
-              <p className="muted fee-chip">Counting pledges from Starknet mainnet…</p>
+            ) : countable ? (
+              <p className="muted fee-chip">Counting pool receipts from Starknet mainnet…</p>
             ) : (
               <Progress raisedWei={0n} goalWei={campaign.goalWei} fraction={0} />
             )}
           </div>
+          {tally?.truncated ? <p className="warning">Partial count — event page cap reached, so this total is incomplete.</p> : null}
           <p className="fineprint" style={{ marginTop: 14 }}>
-            RAISED FROM {tally?.count ?? 0} PUBLIC PLEDGE{tally?.count === 1 ? "" : "S"} · GOAL {campaign.goalWei / 10n ** 18n} STRK · BY {formatDeadline(campaign.deadline)}{left !== null && live ? ` · ${left} DAY${left === 1 ? "" : "S"} LEFT` : ""}
+            {tally?.count ?? 0} QUALIFYING POOL RECEIPT{tally?.count === 1 ? "" : "S"} · GOAL {campaign.goalWei / 10n ** 18n} STRK · BY {formatDeadline(campaign.deadline)}{left !== null && live ? ` · ${left} DAY${left === 1 ? "" : "S"} LEFT` : ""}{closed ? " · CLOSED WINDOW" : ""}
           </p>
           <p className="fineprint" style={{ marginTop: 8 }}>
-            THE BAR READS STRK TRANSFER EVENTS FROM THE POOL TO THE TREASURY. PLEDGE COUNTS COUNT TRANSACTIONS, NOT PEOPLE — ONE WALLET CAN PLEDGE TWICE, AND NOBODY CAN PROVE OTHERWISE.
+            THE BAR SUMS STRK TRANSFERS FROM THE POOL TO THIS TREASURY IN THIS CAMPAIGN&apos;S BLOCK WINDOW. THAT IS A RECEIPT TOTAL — NOT UNIQUE DONORS, NOT INTENT, AND NOT A CHECK THAT THE CREATOR DID NOT FUND IT. AMOUNTS AND TIMING ARE PUBLIC.
           </p>
 
           <div className="stack" style={{ marginTop: 26 }}>
             <p className="eyebrow" style={{ color: "var(--muted)" }}>VERIFY A PLEDGE RECEIPT</p>
-            <p className="fineprint">Backers can prove they supported this campaign by pasting their pledge hash — revealing it is always their choice; otherwise pledges stay anonymous.</p>
+            <p className="fineprint">Anyone can check whether a transaction hash is a qualifying pool-to-treasury receipt in this window. Revealing a hash is optional. Matching a hash is not identity.</p>
             <div className="form-grid">
               <input value={receiptHash} onChange={(event) => setReceiptHash(event.target.value)} placeholder="0x… pledge transaction hash" spellCheck={false} />
-              <button className="btn" onClick={checkReceipt} disabled={!receiptHash.trim() || !live || !pledges}>Verify</button>
+              <button className="btn" onClick={checkReceipt} disabled={!receiptHash.trim() || !countable || !pledges}>Verify</button>
             </div>
             {receipt === "none" ? <p className="error">Not a pledge to this campaign — check the hash, or the RPC read failed.</p> : null}
             {receipt && receipt !== "none" ? (
@@ -241,14 +244,18 @@ export default function CampaignPage() {
 
         <aside className="rail">
           <div className="railcard">
-            <h4>{live ? "Pledge from your shielded balance" : "Preview — treasury not configured"}</h4>
+            <h4>{live ? "Pledge from your shielded balance" : closed ? "Closed — window ended" : "Preview — treasury not configured"}</h4>
             {!live ? (
               <p className="fineprint">
-                This campaign is a preview. The owner must name the treasury address and the block to start counting
-                from before any pledge can land — until then the form stays off, on purpose.
+                {closed
+                  ? "This campaign's counting window has ended. New pool-to-treasury transfers are not added here — they belong to a later live campaign on this treasury, if any."
+                  : "This campaign is a preview. The owner must name the treasury address and the block to start counting from before any pledge can land — until then the form stays off, on purpose."}
               </p>
             ) : (
               <div className="stack" style={{ gap: 14, marginTop: 6 }}>
+                <p className="warning">
+                  Keep-what-you-raise: no escrow, no refunds. Once the pool pays this treasury, the STRK stays.
+                </p>
                 <FeeChip />
                 <label>Pledge amount (STRK)
                   <input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" />
@@ -267,10 +274,10 @@ export default function CampaignPage() {
           </div>
 
           <div className="railcard">
-            <h4>Prefer to stay off the bar?</h4>
+            <h4>Prefer an uncounted transfer?</h4>
             <p className="fineprint">
               Send a <Link href="/tip" style={{ textDecoration: "underline" }}>silent gift</Link> — a plain private
-              transfer to the creator. It never shows in the bar, and that is the point.
+              transfer to the creator. It is not a qualifying pool receipt, so it never moves this bar.
             </p>
           </div>
 
@@ -278,8 +285,8 @@ export default function CampaignPage() {
             <h4>What a pledge reveals</h4>
             <ul className="checklist">
               <li>Amount: public — that is what makes the bar verifiable.</li>
-              <li>Backer: nothing. The chain never learns your address.</li>
-              <li>Timing: public, like every pool-edge interaction.</li>
+              <li>PATRON does not publish a supporter list. Relayed txs are not attributed to tx.from — that is not proof of untraceability.</li>
+              <li>Timing and the earlier deposit that funded the note stay public and can correlate.</li>
               <li>Keep-what-you-raise: no escrow, no refund path in this version.</li>
             </ul>
           </div>

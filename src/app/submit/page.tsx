@@ -157,7 +157,7 @@ export default function SubmitPage() {
                 <button className="btn" onClick={download} disabled={!proposal}>Download config</button>
               </div>
             )}
-            {queued ? <p className="receipt"><b>In the review queue.</b><br />The owner reads the queue at the next review pass. Your draft also stays in this browser; the config below is always yours to keep.</p> : null}
+            {queued ? <p className="receipt"><b>In the review queue.</b><br />This queue is unauthenticated — it is not a signed creator claim. A campaign goes live only after a reviewed merge. Your draft also stays in this browser.</p> : null}
             {submitNote ? <p className="error">{submitNote}</p> : null}
           </div>
         </section>
@@ -181,9 +181,9 @@ export default function SubmitPage() {
             <h4>What happens next</h4>
             <ul className="checklist">
               <li>Open a PR adding your config to `CAMPAIGNS` in src/lib/campaigns.ts.</li>
-              <li>The owner reviews the treasury and the story — no custody, so review matters.</li>
+              <li>The owner reviews the treasury and the story — no custody, so review matters. Live campaigns cannot share an open treasury window.</li>
               <li>Merge flips your page from PREVIEW to LIVE; pledges start counting from your block.</li>
-              <li>Drafts autosave in this browser only — nothing is sent anywhere.</li>
+              <li>The review queue is unauthenticated and rate-limited. It is not a signed creator claim. Drafts also autosave in this browser.</li>
             </ul>
           </div>
           <div className="railcard">

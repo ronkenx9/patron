@@ -42,7 +42,8 @@ export default function ProfilePage() {
       const head = await provider.getBlockNumber();
       const fromBlock = Math.max(0, head - approxBlocksForDays(days));
       const [from, to] = await Promise.all([provider.getBlock(fromBlock), provider.getBlock(head)]);
-      const pledges = await fetchPledges(provider, treasury.trim(), fromBlock, { maxPages: 10 });
+      const scan = await fetchPledges(provider, treasury.trim(), fromBlock, { maxPages: 10 });
+      const pledges = scan.pledges;
       const points = cumulativeSeries(pledges, {
         fromBlock,
         toBlock: head,
@@ -153,7 +154,7 @@ export default function ProfilePage() {
             <ul className="checklist">
               <li>Public pledges to any treasury — amounts, timing, tx hashes.</li>
               <li>Your own shielded balance — read by your wallet, only when you click.</li>
-              <li>Silent gifts — never. They are invisible even here.</li>
+              <li>Silent gifts — not indexed here. They are not qualifying pool receipts.</li>
               <li>Nothing is stored: no server, no session, no profile row.</li>
             </ul>
           </div>

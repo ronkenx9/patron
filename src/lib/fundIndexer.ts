@@ -1,19 +1,29 @@
 import { hash, validateAndParseAddress, type ProviderInterface } from "starknet";
 import { POOL_ADDRESS, STRK_ADDRESS } from "./constants";
+import { inCampaignWindow, type Campaign } from "./campaigns";
 
-// A pledge is a pool withdrawal paid straight to the campaign treasury: the
-// amount is public (that is what makes the bar verifiable), the backer is not
-// on the chain at all — the transaction is submitted by a relayer.
+// A counted receipt is a pool withdrawal paid to the campaign treasury.
+// Amount and timing are public. That is what makes the bar verifiable.
+// The indexer cannot prove donor intent, unique donors, or exclude self-funding.
 export type Pledge = {
   amountWei: bigint;
   block: number;
   txHash: string;
 };
 
+export type PledgeScan = {
+  pledges: Pledge[];
+  complete: boolean;
+  truncated: boolean;
+  continuationToken?: string;
+  fromBlock: number;
+  toBlock: number;
+  head: number;
+};
+
 const TRANSFER_SELECTOR = hash.getSelectorFromName("Transfer");
 const MAX_PAGES_DEFAULT = 10;
 
-// SRC-20 Transfer stores value as u256: data[0] = low limb, data[1] = high limb.
 export function decodeU256(low: string | undefined, high: string | undefined): bigint {
   if (!low) throw new Error("Transfer event without an amount.");
   const lo = BigInt(low);
@@ -38,15 +48,35 @@ export function pledgeFromEvent(event: { keys?: string[]; data?: string[]; block
   }
 }
 
+export function coverageFromPages(pageCount: number, maxPages: number, continuation?: string): { complete: boolean; truncated: boolean } {
+  const truncated = Boolean(continuation) && pageCount >= maxPages;
+  return { complete: !truncated, truncated };
+}
+
+export function pledgesInWindow(pledges: Pledge[], campaign: Campaign): Pledge[] {
+  return pledges.filter((pledge) => inCampaignWindow(pledge.block, campaign));
+}
+
 export async function fetchPledges(
   provider: ProviderInterface,
   beneficiary: string,
   fromBlock: number,
-  opts: { maxPages?: number } = {},
-): Promise<Pledge[]> {
+  opts: { maxPages?: number; toBlock?: number } = {},
+): Promise<PledgeScan> {
   const treasury = validateAndParseAddress(beneficiary);
   const head = await provider.getBlockNumber();
-  if (fromBlock > head) return [];
+  const exclusiveEnd = opts.toBlock;
+  const lastInclusive = exclusiveEnd == null ? head : Math.min(head, exclusiveEnd - 1);
+  const empty = (complete: boolean): PledgeScan => ({
+    pledges: [],
+    complete,
+    truncated: false,
+    fromBlock,
+    toBlock: lastInclusive,
+    head,
+  });
+
+  if (fromBlock > head || fromBlock > lastInclusive) return empty(true);
 
   const pledges: Pledge[] = [];
   let token: string | undefined;
@@ -58,7 +88,7 @@ export async function fetchPledges(
       address: STRK_ADDRESS,
       keys: [[TRANSFER_SELECTOR], [validateAndParseAddress(POOL_ADDRESS)], [treasury]],
       from_block: { block_number: fromBlock },
-      to_block: { block_number: head },
+      to_block: { block_number: lastInclusive },
       chunk_size: 1000,
       continuation_token: token,
     });
@@ -70,7 +100,16 @@ export async function fetchPledges(
     pages += 1;
   } while (token && pages < maxPages);
 
-  return pledges;
+  const coverage = coverageFromPages(pages, maxPages, token);
+  return {
+    pledges,
+    complete: coverage.complete,
+    truncated: coverage.truncated,
+    continuationToken: token,
+    fromBlock,
+    toBlock: lastInclusive,
+    head,
+  };
 }
 
 export function sumPledges(pledges: Pledge[]): { totalWei: bigint; count: number; lastBlock: number | null } {

@@ -4,7 +4,7 @@ import LiveStrip from "@/components/LiveStrip";
 
 const MARQUEE = [
   "Verifiable bars",
-  "Invisible backers",
+  "No supporter list",
   "Public pledges",
   "Silent gifts",
   "Open source",
@@ -16,19 +16,19 @@ const STEPS = [
     num: "01",
     tag: "PUBLIC / POOL EDGE",
     title: "Shield",
-    copy: "Backers hold their funds as encrypted notes. Shielding is public and the wallet asks twice — approve, then deposit — so use dust you don't mind showing, and let notes mature ~10 blocks.",
+    copy: "Funds enter the pool as encrypted notes. Shielding is public — amount, token, and depositor — and the wallet asks twice (approve, then deposit). Use dust you don't mind showing, and let notes mature ~10 blocks.",
   },
   {
     num: "02",
     tag: "YOUR CHOICE OF RAIL",
     title: "Pledge — or gift",
-    copy: "A public pledge withdraws from your shielded balance straight to the treasury: counted on the bar, backer invisible. A silent gift is a private transfer the bar never sees. Same pool, two levels of quiet.",
+    copy: "A public pledge withdraws to the treasury and is counted as a qualifying pool receipt. A silent gift is a private transfer the bar never counts. Amounts and timing of pledges stay public.",
   },
   {
     num: "03",
     tag: "PUBLIC / POOL EDGE",
     title: "Spend",
-    copy: "The creator unshields what the campaign raised whenever they want. The withdrawal is visible; which backers funded it never was — so it can't leak later either.",
+    copy: "The creator spends from the treasury whenever they want. That withdrawal is public. PATRON still does not publish a backer list — which is not the same as untraceability.",
   },
 ];
 
@@ -38,11 +38,11 @@ export default function HomePage() {
       <section className="hero">
         <div>
           <p className="eyebrow">Private crowdfunding / STRK20 · SN_MAIN</p>
-          <h1>Back ideas, <span className="dim">not identities.</span></h1>
+          <h1>Back ideas, <span className="dim">not a public list.</span></h1>
           <p className="lead">
             Crowdfunds for creators, open-source teams, and communities on Starknet.
-            Every STRK in the bar is verifiable on-chain. Every backer stays invisible.
-            Tipping included — receipts optional.
+            Every STRK in the bar is a public pool-to-treasury transfer. PATRON does not
+            publish a supporter list. Tipping included — receipts optional.
           </p>
           <div className="hero-actions">
             <Link className="btn btn-solid btn-lg" href="/fund">Back a campaign</Link>
@@ -51,16 +51,16 @@ export default function HomePage() {
           <p className="hero-note">WALLET-API ≥ 0.10 (READY) · MAINNET · REAL FEES · KEEP-WHAT-YOU-RAISE</p>
         </div>
         <div className="poster" aria-hidden>
-          <p className="poster-note">PATRON / C-01<br />A public pot. A private crowd.</p>
-          <span className="poster-chip">backers: hidden</span>
+          <p className="poster-note">PATRON / C-01<br />A public pot. No supporter list.</p>
+          <span className="poster-chip">list: unpublished</span>
           <div className="poster-mock">
-            <h5>SEASON 02 — open-source tooling</h5>
-            <div className="poster-bar"><span style={{ width: "62%" }} /></div>
-            <div className="row"><span>Raised</span><b>310 / 500 STRK</b></div>
-            <div className="row"><span>Backers</span><b>nobody knows</b></div>
+            <h5>NIGHT SCHOOL — office hours</h5>
+            <div className="poster-bar"><span style={{ width: "10%" }} /></div>
+            <div className="row"><span>Pool receipts</span><b>8 / 80 STRK</b></div>
+            <div className="row"><span>Supporter list</span><b>not published</b></div>
             <div className="row"><span>Deadline</span><b>31 Oct</b></div>
           </div>
-          <div className="poster-foot"><span>BAR: VERIFIABLE</span><span>CROWD: INVISIBLE</span></div>
+          <div className="poster-foot"><span>BAR: VERIFIABLE</span><span>LIST: UNPUBLISHED</span></div>
         </div>
       </section>
 
@@ -78,7 +78,7 @@ export default function HomePage() {
         <div className="section-head">
           <div>
             <p className="eyebrow">01 / CAMPAIGNS</p>
-            <h2>A bar anyone can verify. <span className="dim">A crowd no one can name.</span></h2>
+            <h2>A bar anyone can verify. <span className="dim">No supporter list.</span></h2>
           </div>
           <span className="section-num">01</span>
         </div>
@@ -86,14 +86,14 @@ export default function HomePage() {
           <div className="vault">
             <p className="eyebrow">WHAT THE CHAIN PROVES</p>
             <ul className="vault-list">
-              <li>Every STRK that reached the treasury</li>
-              <li>How many pledges built the bar</li>
-              <li>Nothing about who pledged — ever</li>
+              <li>Every qualifying STRK transfer from the pool to the treasury</li>
+              <li>How many receipts built the bar — transactions, not unique people</li>
+              <li>PATRON does not publish a supporter list</li>
             </ul>
             <p className="vault-foot">
-              The bar reads STRK transfer events from the pool to the treasury — not anyone's word, not a self-reported
-              number. Pledges are withdrawals from shielded balances, submitted by a relayer, so the backer list
-              simply does not exist.
+              The bar reads STRK transfer events from the pool to the treasury in one campaign window — not anyone's
+              word. Relayed transactions are not attributed to tx.from. That is not proof of untraceability: amounts,
+              timing, and the earlier deposit remain public and can correlate.
             </p>
           </div>
           <div className="edge">
@@ -142,14 +142,14 @@ export default function HomePage() {
           <div className="vault">
             <p className="eyebrow">INSIDE THE POOL — PRIVATE</p>
             <ul className="vault-list">
-              <li>The backer → creator link of a silent gift</li>
-              <li>Silent-gift amounts and shielded balances</li>
-              <li>Who pledged, how often, and how much in total</li>
-              <li>Every subsequent spend of a pledged note</li>
+              <li>Silent-gift amounts, and the backer → creator link of a silent gift</li>
+              <li>Shielded balances (wallet-mediated read only, on click)</li>
+              <li>A published supporter list — PATRON does not keep one</li>
+              <li>Subsequent spends of notes that stay inside the pool</li>
             </ul>
             <p className="vault-foot">
-              Private transactions are submitted by a relayer, so even the transaction sender says nothing about the
-              user. PATRON never attributes activity to <code>tx.from</code>.
+              Private transactions are submitted by a relayer, so PATRON never attributes activity to <code>tx.from</code>.
+              Lack of a direct sender field is not a claim that the flow cannot be correlated.
             </p>
           </div>
           <div className="edge">
@@ -169,7 +169,7 @@ export default function HomePage() {
         <div className="section-head">
           <div>
             <p className="eyebrow">04 / THE BOOK</p>
-            <h2>A thank-you page that can't be doxxed.</h2>
+            <h2>A thank-you page without a public list.</h2>
           </div>
           <span className="section-num">04</span>
         </div>
@@ -186,9 +186,8 @@ export default function HomePage() {
           </div>
         </div>
         <p className="fineprint" style={{ maxWidth: 620, margin: "18px 0 22px" }}>
-          Silent gifts are invisible to any indexer by design, so the book refuses to fabricate chain-derived numbers.
-          Campaigns are the other half of the story: the one place PATRON publishes numbers, and only because the
-          chain itself vouches for them.
+          Silent gifts are not indexed here, so the book refuses to fabricate chain-derived numbers.
+          Campaigns are the other half: PATRON publishes qualifying pool receipts because those transfers are already public.
         </p>
         <Link className="btn" href="/creator">Open the creator book</Link>
       </section>
@@ -197,8 +196,8 @@ export default function HomePage() {
         <p className="eyebrow">BUILT FOR COMMUNITIES</p>
         <h2>Put your community in the pool.</h2>
         <p className="lead">
-          Ecosystems run on small, public acts of support — and on the people who'd rather not be listed for making
-          them. PATRON gives Starknet's communities verifiable funding without a supporter list.
+          Ecosystems run on small, public acts of support — and on people who would rather not be listed for making
+          them. PATRON gives Starknet's communities verifiable funding without publishing a supporter list.
         </p>
         <div className="band-actions">
           <Link className="btn btn-acid btn-lg" href="/fund">Back a campaign</Link>

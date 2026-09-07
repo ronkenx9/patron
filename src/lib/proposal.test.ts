@@ -33,6 +33,8 @@ test("rejects malformed proposals with a usable reason", () => {
   assert.equal(checkProposal({ ...VALID, fromBlock: "-3" }).ok, false);
   const empty = checkProposal({ ...VALID, story: "   " });
   assert.equal(empty.ok, false);
+  assert.equal(checkProposal({ ...VALID, title: "T".repeat(121) }).ok, false);
+  assert.equal(checkProposal({ ...VALID, blurb: "B".repeat(281) }).ok, false);
 });
 
 test("slugs tolerate punctuation and collapse separators", () => {

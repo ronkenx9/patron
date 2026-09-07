@@ -7,7 +7,7 @@ const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-grotesk" }
 
 export const metadata: Metadata = {
   title: "PATRON — private crowdfunding on STRK20",
-  description: "Back creators, open source, and communities on Starknet. Every STRK in the bar is verifiable; every backer stays invisible.",
+  description: "Back creators, open source, and communities on Starknet. Every STRK in the bar is a public pool-to-treasury receipt; PATRON does not publish a supporter list.",
 };
 
 export const viewport: Viewport = {

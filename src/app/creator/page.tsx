@@ -33,7 +33,7 @@ export default function CreatorPage() {
           {!connected ? <ConnectButton /> : <ShieldedBalance />}
           <p className="warning">
             Supporter count is self-reported and the unconnected figure is a demo fixture — neither is derived from
-            chain data, because private transfers are invisible by design. The shielded balance is read by your wallet
+            chain data, because silent gifts are not indexed here. The shielded balance is read by your wallet
             and covers every inflow, not only tips.
           </p>
         </div>
