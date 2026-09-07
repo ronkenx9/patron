@@ -1,9 +1,12 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Shell from "@/components/Shell";
 import Progress from "@/components/Progress";
-import { CAMPAIGNS, formatDeadline, isLive } from "@/lib/campaigns";
+import { CAMPAIGNS, formatDeadline, isLive, pledgedFraction, type Campaign } from "@/lib/campaigns";
+import { makeProvider } from "@/lib/constants";
+import { fetchPledges, sumPledges } from "@/lib/fundIndexer";
 
 const RAILS = [
   {
@@ -37,21 +40,7 @@ export default function FundPage() {
       </div>
       <div className="stack" style={{ gap: 20 }}>
         {CAMPAIGNS.map((campaign) => (
-          <Link className="campaign-card" href={`/fund/${campaign.id}`} key={campaign.id}>
-            <div className="campaign-head">
-              <h3>{campaign.title}</h3>
-              <span className={isLive(campaign) ? "badge badge-live" : "badge"}>{isLive(campaign) ? "LIVE" : "PREVIEW"}</span>
-            </div>
-            <p className="section-copy">{campaign.blurb}</p>
-            {isLive(campaign) ? (
-              <Progress raisedWei={0n} goalWei={campaign.goalWei} fraction={0} />
-            ) : (
-              <p className="fineprint">
-                GOAL {campaign.goalWei / 10n ** 18n} STRK · BY {formatDeadline(campaign.deadline)} · TREASURY NOT CONFIGURED — THE OWNER SETS IT BEFORE ANY PLEDGE CAN LAND
-              </p>
-            )}
-            <p className="fineprint" style={{ marginTop: 10 }}>OPEN CAMPAIGN PAGE →</p>
-          </Link>
+          <CampaignCard campaign={campaign} key={campaign.id} />
         ))}
       </div>
 
@@ -70,5 +59,44 @@ export default function FundPage() {
         as dust — the form blocks them.
       </p>
     </Shell>
+  );
+}
+
+function CampaignCard({ campaign }: { campaign: Campaign }) {
+  const live = isLive(campaign);
+  const [raised, setRaised] = useState<bigint | null>(null);
+
+  useEffect(() => {
+    if (!live || !campaign.beneficiary || campaign.fromBlock == null) return;
+    let cancelled = false;
+    fetchPledges(makeProvider(), campaign.beneficiary, campaign.fromBlock)
+      .then((pledges) => {
+        if (!cancelled) setRaised(sumPledges(pledges).totalWei);
+      })
+      .catch(() => {
+        if (!cancelled) setRaised(0n);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [live, campaign.beneficiary, campaign.fromBlock]);
+
+  const raisedWei = raised ?? 0n;
+  return (
+    <Link className="campaign-card" href={`/fund/${campaign.id}`}>
+      <div className="campaign-head">
+        <h3>{campaign.title}</h3>
+        <span className={live ? "badge badge-live" : "badge"}>{live ? "LIVE" : "PREVIEW"}</span>
+      </div>
+      <p className="section-copy">{campaign.blurb}</p>
+      {live ? (
+        <Progress raisedWei={raisedWei} goalWei={campaign.goalWei} fraction={pledgedFraction(raisedWei, campaign.goalWei)} />
+      ) : (
+        <p className="fineprint">
+          GOAL {campaign.goalWei / 10n ** 18n} STRK · BY {formatDeadline(campaign.deadline)} · TREASURY NOT CONFIGURED — THE OWNER SETS IT BEFORE ANY PLEDGE CAN LAND
+        </p>
+      )}
+      <p className="fineprint" style={{ marginTop: 10 }}>OPEN CAMPAIGN PAGE →</p>
+    </Link>
   );
 }

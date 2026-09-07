@@ -58,11 +58,14 @@ test("progress math caps at the goal", () => {
   assert.equal(pledgedFraction(strk(50), 0n), 0);
 });
 
-test("the demo campaign is live once a treasury and fromBlock are set", () => {
-  assert.equal(CAMPAIGNS.length, 1);
+test("live campaigns have a treasury and a fromBlock", () => {
+  assert.equal(CAMPAIGNS.length, 2);
   const campaign = getCampaign("season-two");
   assert.ok(campaign);
   assert.equal(isLive(campaign), true);
+  const night = getCampaign("night-school");
+  assert.ok(night);
+  assert.equal(isLive(night), true);
   assert.equal(getCampaign("nope"), undefined);
   assert.ok(daysLeft(campaign.deadline) !== null);
 });

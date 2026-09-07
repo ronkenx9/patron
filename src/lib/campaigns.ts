@@ -34,6 +34,20 @@ export const CAMPAIGNS: Campaign[] = [
     beneficiary: "0x02da976cd4fc7689541d66612491ec49de859f97556c60933407bbd85be0c86f",
     fromBlock: 14516675,
   },
+  {
+    id: "night-school",
+    title: "NIGHT SCHOOL — STRK20 office hours",
+    blurb: "Four open sessions on running a campaign with no supporter list. Backers stay invisible; the bar does not.",
+    story: [
+      "Four Tuesday sessions, recorded and published: Wallet API pledges, silent gifts, and what the chain actually shows.",
+      "The money pays the room, the recordings, and a public notes dump anyone can fork. Keep-what-you-raise — no escrow, no refunds.",
+      "A public pledge is counted on this bar. A silent gift is not. Same pool, two levels of quiet.",
+    ],
+    goalWei: strk(80),
+    deadline: "2026-10-31T23:59:00Z",
+    beneficiary: "0x02da976cd4fc7689541d66612491ec49de859f97556c60933407bbd85be0c86f",
+    fromBlock: 14518740,
+  },
 ];
 
 export function getCampaign(id: string): Campaign | undefined {
