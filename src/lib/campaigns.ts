@@ -31,6 +31,8 @@ export const CAMPAIGNS: Campaign[] = [
     ],
     goalWei: strk(500),
     deadline: "2026-10-31T23:59:00Z",
+    beneficiary: "0x02da976cd4fc7689541d66612491ec49de859f97556c60933407bbd85be0c86f",
+    fromBlock: 14516675,
   },
 ];
 

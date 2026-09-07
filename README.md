@@ -70,7 +70,7 @@ Until then the page refuses to fabricate numbers: a preview shows an empty bar, 
 
 ## Sprint status
 
-What ships now: the three pool actions against the live mainnet pool, a live pool-fee read, size guards, a wallet-mediated creator balance, and the crowdfunding layer with a chain-derived progress bar — validated against real mainnet event data. `strk20.json` still holds no transaction hashes, no deployed URL, and no video. Those fields are filled only after the owner completes the wallet proof and production deployment; the campaign treasury is configured at the same time.
+What ships now: the three pool actions against the live mainnet pool, a live pool-fee read, size guards, a wallet-mediated creator balance, and the crowdfunding layer with a chain-derived progress bar. Season 02 is live against treasury `0x02da…c86f` from block `14516675`. `strk20.json` is filled only with verified successful mainnet hashes that touch the pool, plus the public demo URL. The demo video remains an owner recording.
 
 ## Builder
 
