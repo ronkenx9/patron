@@ -75,7 +75,7 @@ Public repo, MIT license, live demo, three mainnet pool transactions. The hub re
 | Field | Value |
 | --- | --- |
 | Demo | https://patron-topaz.vercel.app |
-| Video | https://patron-topaz.vercel.app/demo.mp4 |
+| Video | https://patron-topaz.vercel.app/demo.mp4 — pitch Night School, then the live 8/80 bar |
 | Registry | https://github.com/ronkenx9/patron · Telegram `Kenshixronin` |
 | Inspired by | RFP-12 |
 
@@ -90,6 +90,14 @@ Each hash succeeded on Starknet mainnet and touched pool `0x040337b1af3c663e86e3
 | Unshield (withdraw to campaign treasury) | [`0xbda1e01e…bc07`](https://voyager.online/tx/0xbda1e01ed58a533fae14a185ec839988a1fdf7927a0cad430ecd199755bc07) |
 
 Season 02 is live against treasury `0x02da976cd4fc7689541d66612491ec49de859f97556c60933407bbd85be0c86f`, counting from block `14516675`.
+
+**Night School** (`/fund/night-school`) is a second live campaign — four STRK20 office-hour sessions, goal 80 STRK, counting from block `14518740`. A real public pledge of 8 STRK landed from a shielded note:
+
+| Step | Hash |
+| --- | --- |
+| Unshield / public pledge to Night School | [`0x4a45932d…2a42`](https://voyager.online/tx/0x4a45932de83dc6cf23fc80bf473682b4e7c909d27a9ddf72b72c319d8d82a42) |
+
+The bar reads that as 8 / 80 STRK (10%). Same treasury as Season 02; a different `fromBlock` so Season 02 now shows both pledges (16 STRK) and Night School shows only this one. The sprint `strk20.json` transactions stay the original shield → transfer → unshield triple.
 
 ### Integration depth (honest)
 
