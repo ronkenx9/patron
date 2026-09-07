@@ -48,7 +48,9 @@ npm run dev
 
 Open `http://localhost:3000`.
 
-1. `/fund` — campaign index and campaign pages. The progress bar reads STRK `Transfer` events (pool → treasury) via `starknet_getEvents` inside one block window. Contributing is a Wallet API `withdraw` from an already-shielded balance.
+The interface follows the production identity in [`docs/brand-guidelines.md`](docs/brand-guidelines.md): an editorial, human-first system that leads with the campaign and keeps protocol detail one layer deeper.
+
+1. `/fund` — the primary Discover view and campaign pages. The progress bar reads STRK `Transfer` events (pool → treasury) via `starknet_getEvents` inside one block window. Contributing is a Wallet API `withdraw` from an already-shielded balance.
 2. `/tip` — the silent-gift rail on its own: a private transfer to any registered creator, fee-checked, not counted on any bar.
 3. `/creator` — the aggregate-only book: a self-reported supporter count, plus a wallet-mediated read of the creator's own shielded balance (the read fires only on an explicit click; the app never sees a viewing key).
 4. `/pool` — the shield / private transfer / unshield proof bench used for the sprint's mainnet proof.
@@ -82,7 +84,7 @@ Public repo, MIT license, live demo, three mainnet pool transactions. The hub re
 | Field | Value |
 | --- | --- |
 | Demo | https://patron-topaz.vercel.app |
-| Video | https://patron-topaz.vercel.app/demo.mp4 — live 8/80 bar, verified receipt, then what stays public |
+| Video | https://youtu.be/cbvcKxiPkXA — live 8/80 bar, verified receipt, then what stays public |
 | Registry | https://github.com/ronkenx9/patron · Telegram `Kenshixronin` |
 | Inspired by | RFP-12 |
 

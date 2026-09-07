@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import Shell from "@/components/Shell";
@@ -183,8 +184,14 @@ export default function CampaignPage() {
     <Shell>
       <div className="appgrid">
         <section className="panel">
-          <p className="eyebrow">PATRON CAMPAIGN / {live ? "LIVE" : closed ? "CLOSED" : "PREVIEW"}</p>
+          {campaign.id === "night-school" ? (
+            <div className="campaign-detail-art">
+              <Image src="/brand/patron-night-school.webp" alt="Night School classroom" fill priority loading="eager" sizes="(max-width: 980px) 100vw, 55vw" />
+            </div>
+          ) : null}
+          <p className="eyebrow">{live ? "FUNDING NOW" : closed ? "CAMPAIGN CLOSED" : "CAMPAIGN PREVIEW"} · {formatDeadline(campaign.deadline)}</p>
           <h2 style={{ marginTop: 14 }}>{campaign.title}</h2>
+          <p className="campaign-blurb">{campaign.blurb}</p>
           {campaign.story.map((paragraph) => (
             <p className="section-copy" style={{ marginTop: 14 }} key={paragraph.slice(0, 24)}>{paragraph}</p>
           ))}
@@ -203,12 +210,13 @@ export default function CampaignPage() {
           <p className="fineprint" style={{ marginTop: 14 }}>
             {tally?.count ?? 0} QUALIFYING POOL RECEIPT{tally?.count === 1 ? "" : "S"} · GOAL {campaign.goalWei / 10n ** 18n} STRK · BY {formatDeadline(campaign.deadline)}{left !== null && live ? ` · ${left} DAY${left === 1 ? "" : "S"} LEFT` : ""}{closed ? " · CLOSED WINDOW" : ""}
           </p>
-          <p className="fineprint" style={{ marginTop: 8 }}>
-            THE BAR SUMS STRK TRANSFERS FROM THE POOL TO THIS TREASURY IN THIS CAMPAIGN&apos;S BLOCK WINDOW. THAT IS A RECEIPT TOTAL — NOT UNIQUE DONORS, NOT INTENT, AND NOT A CHECK THAT THE CREATOR DID NOT FUND IT. AMOUNTS AND TIMING ARE PUBLIC.
-          </p>
+          <details className="details-note">
+            <summary>How this total is verified</summary>
+            <p>The bar sums STRK transfers from the privacy pool to this treasury during the campaign window. It counts receipts, not unique people or intent. Amounts and timing are public.</p>
+          </details>
 
           <div className="stack" style={{ marginTop: 26 }}>
-            <p className="eyebrow" style={{ color: "var(--muted)" }}>VERIFY A PLEDGE RECEIPT</p>
+            <p className="eyebrow" style={{ color: "var(--muted)" }}>VERIFY A RECEIPT</p>
             <p className="fineprint">Anyone can check whether a transaction hash is a qualifying pool-to-treasury receipt in this window. Revealing a hash is optional. Matching a hash is not identity.</p>
             <div className="form-grid">
               <input value={receiptHash} onChange={(event) => setReceiptHash(event.target.value)} placeholder="0x… pledge transaction hash" spellCheck={false} />
@@ -244,7 +252,7 @@ export default function CampaignPage() {
 
         <aside className="rail">
           <div className="railcard">
-            <h4>{live ? "Pledge from your shielded balance" : closed ? "Closed — window ended" : "Preview — treasury not configured"}</h4>
+            <h4>{live ? "Make a public pledge" : closed ? "Closed — window ended" : "Preview — treasury not configured"}</h4>
             {!live ? (
               <p className="fineprint">
                 {closed
@@ -253,9 +261,7 @@ export default function CampaignPage() {
               </p>
             ) : (
               <div className="stack" style={{ gap: 14, marginTop: 6 }}>
-                <p className="warning">
-                  Keep-what-you-raise: no escrow, no refunds. Once the pool pays this treasury, the STRK stays.
-                </p>
+                <p className="choice-hint"><b>Counts toward the goal.</b> Amount and timing are public; your name is not listed by PATRON.</p>
                 <FeeChip />
                 <label>Pledge amount (STRK)
                   <input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" />
@@ -266,6 +272,7 @@ export default function CampaignPage() {
                     {busy ? "Proving…" : "Pledge publicly"}
                   </button>
                 )}
+                {connected && !strk20 ? <p className="warning">This wallet connected, but it does not advertise the privacy-enabled Wallet API required to pledge. Switch to Ready and reconnect.</p> : null}
                 {connected ? <ShieldedBalance /> : null}
                 {tx ? <div className="receipt"><b>Pledge submitted</b><br /><a href={explorerTx(tx)} target="_blank" rel="noreferrer">{shortHex(tx)} ↗</a></div> : null}
                 {error ? <p className="error">{error}</p> : null}

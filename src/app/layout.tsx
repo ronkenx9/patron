@@ -1,19 +1,19 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
-const grotesk = Space_Grotesk({ subsets: ["latin"], variable: "--font-grotesk" });
+const geist = Geist({ subsets: ["latin"], variable: "--font-geist" });
+const mono = Geist_Mono({ subsets: ["latin"], variable: "--font-mono" });
 
 export const metadata: Metadata = {
-  title: "PATRON — private crowdfunding on STRK20",
-  description: "Back creators, open source, and communities on Starknet. Every STRK in the bar is a public pool-to-treasury receipt; PATRON does not publish a supporter list.",
+  title: "PATRON — fund the work, skip the supporter list",
+  description: "Private crowdfunding for creators and communities. Verifiable campaign totals without a published supporter list.",
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#f3efe5",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" className={`${inter.variable} ${grotesk.variable}`}><body>{children}</body></html>;
+  return <html lang="en" data-scroll-behavior="smooth" className={`${geist.variable} ${mono.variable}`}><body>{children}</body></html>;
 }

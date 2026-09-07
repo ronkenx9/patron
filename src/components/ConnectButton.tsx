@@ -19,6 +19,7 @@ export default function ConnectButton() {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     const store: Store = createStore({ eip1193Adapters: [] });
@@ -54,20 +55,39 @@ export default function ConnectButton() {
     return <button className="pill" onClick={reset} title="Disconnect"><span className="dot" /> {shortHex(address)}</button>;
   }
 
+  const compatibleWallets = wallets.filter((wallet) =>
+    !normalize(wallet.name).includes("metamask") && !normalize(wallet.name).includes("braavos")
+  );
+
+  async function copyLink() {
+    await navigator.clipboard.writeText(window.location.href);
+    setCopied(true);
+  }
+
   return (
     <>
-      <button className="pill" onClick={() => setOpen(true)}>Connect wallet</button>
+      <button className="pill" onClick={() => setOpen(true)}>Connect Ready</button>
       {open ? (
         <div className="overlay" onClick={() => !busy && setOpen(false)}>
           <div className="modal" onClick={(event) => event.stopPropagation()}>
             <p className="eyebrow">STRK20 / SN_MAIN</p>
             <h2>Choose a wallet</h2>
-            <p className="muted">PATRON uses the Wallet API. Ready is the known privacy-capable path.</p>
-            {wallets.filter((wallet) => !normalize(wallet.name).includes("metamask") && !normalize(wallet.name).includes("braavos")).map((wallet) => (
+            <p className="muted">PATRON uses Ready&apos;s privacy-enabled Wallet API. Connecting does not submit a transaction.</p>
+            {compatibleWallets.map((wallet) => (
               <button className="wallet-row" key={wallet.name} disabled={busy} onClick={() => connect(wallet)}>{wallet.name}<span>↗</span></button>
             ))}
-            {!wallets.length ? <p className="muted">Install Ready, then reload this page.</p> : null}
-            {error ? <p className="error">{error}</p> : null}
+            {!compatibleWallets.length ? (
+              <div className="wallet-empty">
+                <h3>No compatible wallet found</h3>
+                <p>Wallet extensions do not run in some embedded browsers. Open this campaign in Brave or Chrome with Ready installed, then connect again.</p>
+                <div className="quickrow">
+                  <a className="btn btn-solid" href="https://www.ready.co/" target="_blank" rel="noreferrer">Get Ready wallet ↗</a>
+                  <button className="btn" onClick={copyLink}>{copied ? "Link copied ✓" : "Copy this page"}</button>
+                </div>
+              </div>
+            ) : null}
+            {error ? <p className="error" role="alert">{error}</p> : null}
+            <button className="modal-close" onClick={() => setOpen(false)} aria-label="Close wallet dialog">Close</button>
           </div>
         </div>
       ) : null}

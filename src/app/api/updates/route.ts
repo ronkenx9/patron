@@ -10,12 +10,14 @@ export const dynamic = "force-dynamic";
 const knownIds = CAMPAIGNS.map((campaign) => campaign.id);
 
 export async function GET(request: Request) {
-  if (!hasDatabase()) {
-    return NextResponse.json({ error: "Backend storage is not configured (DATABASE_URL missing)." }, { status: 503 });
-  }
   const campaign = new URL(request.url).searchParams.get("campaign") ?? "";
   if (!knownIds.includes(campaign)) {
     return NextResponse.json({ error: "Unknown campaign." }, { status: 404 });
+  }
+  // Updates are supporting content, so the campaign remains usable on a
+  // deployment without optional storage instead of presenting a broken state.
+  if (!hasDatabase()) {
+    return NextResponse.json({ updates: [], available: false });
   }
   try {
     const rows = await listUpdates(campaign);
