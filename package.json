@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": false,
   "type": "module",
-  "description": "A private tip jar for creators on Starknet STRK20",
+  "description": "Private crowdfunding on Starknet STRK20: a verifiable progress bar, no supporter list",
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build --webpack",

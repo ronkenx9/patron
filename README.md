@@ -68,9 +68,39 @@ Until then the page refuses to fabricate numbers: a preview shows an empty bar, 
 `src/lib/campaigns.ts` → campaign config and the live/preview gate  
 `src/lib/fundIndexer.ts` → pledge indexer: u256 decode, pagination, totals
 
-## Sprint status
+## Sprint entry (STRK20 Private Sprint)
 
-What ships now: the three pool actions against the live mainnet pool, a live pool-fee read, size guards, a wallet-mediated creator balance, and the crowdfunding layer with a chain-derived progress bar. Season 02 is live against treasury `0x02da…c86f` from block `14516675`. `strk20.json` is filled only with verified successful mainnet hashes that touch the pool, plus the public demo URL. The demo video remains an owner recording.
+Public repo, MIT license, live demo, three mainnet pool transactions. The hub reads `strk20.json` at this root.
+
+| Field | Value |
+| --- | --- |
+| Demo | https://patron-topaz.vercel.app |
+| Video | https://patron-topaz.vercel.app/demo.mp4 |
+| Registry | https://github.com/ronkenx9/patron · Telegram `Kenshixronin` |
+| Inspired by | RFP-12 |
+
+### Mainnet transactions (live STRK20 pool)
+
+Each hash succeeded on Starknet mainnet and touched pool `0x040337b1af3c663e86e333bab5a4b28da8d4652a15a69beee2b677776ffe812a`. PATRON deploys no contract of its own — scoring is on the pool, as the hub allows.
+
+| Step | Hash |
+| --- | --- |
+| Shield (deposit) | [`0x2e0b97e9…dafa`](https://voyager.online/tx/0x2e0b97e9a0294854bd530f7272c377d3282f57d0a46682619946a505d40dafa) |
+| Private transfer | [`0x7072d3f3…76bc`](https://voyager.online/tx/0x7072d3f3d612f46d8c7e39877028ae864c5535687ba89604ffd48e0cc0a76bc) |
+| Unshield (withdraw to campaign treasury) | [`0xbda1e01e…bc07`](https://voyager.online/tx/0xbda1e01ed58a533fae14a185ec839988a1fdf7927a0cad430ecd199755bc07) |
+
+Season 02 is live against treasury `0x02da976cd4fc7689541d66612491ec49de859f97556c60933407bbd85be0c86f`, counting from block `14516675`.
+
+### Integration depth (honest)
+
+| Piece | In PATRON |
+| --- | --- |
+| Shield / unshield / private transfer | Yes — Wallet API `deposit` / `withdraw` / `transfer` on `/pool`, `/fund`, `/tip` |
+| Shielded balance | Yes — wallet-mediated `strk20Balances`, click-gated, no viewing key in the dapp |
+| Privacy SDK | Used to produce the three mainnet hashes (register → deposit → transfer → withdraw against the hosted prover). The public app stays on the Wallet API so a user's viewing key never leaves their wallet. |
+| Anonymizer / stealth accounts | Not shipped. All-or-nothing escrow is specified in `ESCROW_DESIGN.md` and is the owner's Cairo to write and audit. |
+
+Pledge amounts are public on purpose so the bar is chain-verifiable. Backer identity is not. Relayed txs are never attributed to `tx.from`.
 
 ## Builder
 
